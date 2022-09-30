@@ -26,7 +26,7 @@
             // Generate User ID
             var subject_id = Math.floor(Math.random()*100000);
             // Initialize constants
-            var sentence_duration = 1000; //***
+            var sentence_duration = 5000; //***
             var prime_duration = 250; 
             
             // INSTRUCTIONS
@@ -47,10 +47,10 @@
                 choices: "NO_KEYS", 
                 trial_duration: sentence_duration,
                 data: {
-                typeoftrial: 'sentence',
-                // list_number: jsPsych.timelineVariable('List'), 
-                // trialcondition: jsPsych.timelineVariable('condition'),
-                subject: subject_id
+                    subject_id: subject_id,
+                    typeoftrial: 'sentence',
+                    prime_condition: jsPsych.timelineVariable('prime_condition'),
+                    list: jsPsych.timelineVariable('list'), 
                 }
             }
             
@@ -61,10 +61,10 @@
                 choices: "NO_KEYS",
                 trial_duration: prime_duration,
                 data: {
-                typeoftrial: 'prime',
-                // list_number: jsPsych.timelineVariable('List'),
-                // trialcondition: jsPsych.timelineVariable('condition'),
-                subject: subject_id
+                    subject_id: subject_id,
+                    typeoftrial: 'prime',
+                    prime_condition: jsPsych.timelineVariable('prime_condition'),
+                    list: jsPsych.timelineVariable('list')
                 }
             }
 
@@ -74,10 +74,10 @@
                 stimulus: "Do you know the answer?",
                 choices: ["Know", "Don't know", "Other word in mind", "Tip of my tongue"], 
                 data: {
-                typeoftrial: 'state',
-                // list_number: jsPsych.timelineVariable('List'), 
-                // trialcondition: jsPsych.timelineVariable('condition'),
-                subject: subject_id
+                    subject_id: subject_id,
+                    typeoftrial: 'state',
+                    prime_condition: jsPsych.timelineVariable('prime_condition'),
+                    list: jsPsych.timelineVariable('list'), 
                 }
             }
 
@@ -86,10 +86,10 @@
                 type: jsPsychSurveyText,
                 questions: [{prompt: "Answer: ", name: "question", required: true}],
                 data: {
-                typeoftrial: 'state',
-                // list_number: jsPsych.timelineVariable('List'), 
-                // trialcondition: jsPsych.timelineVariable('condition'),
-                subject: subject_id
+                    subject_id: subject_id,
+                    typeoftrial: 'response',
+                    prime_condition: jsPsych.timelineVariable('prime_condition'),
+                    list: jsPsych.timelineVariable('list'), 
                 }
             }
 
