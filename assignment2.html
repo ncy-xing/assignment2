@@ -3,28 +3,106 @@
     <head>
         <title>Assignment 2</title>
         <!--IMPORTS-->
-        <!--Import style sheet, -->
+        <script src="https://unpkg.com/jspsych@7.3.0"></script>
+        <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.1"></script>
+        <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.1"></script>
+        <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.1"></script>
+        <!--style sheet-->
+        <link href="https://unpkg.com/jspsych@7.3.0/css/jspsych.css" rel="stylesheet" type="text/css" />
+        
     </head>
     <body>
         <script>
-            /* TODO:
-             * Instructions screen 
-             One trial
-             x20
-             subject_id var and data tagging
-             cognition.run
-             * */
-            // Instructions: Display basic instructions about the experiment and ask participants to
-            // click a button to advance to the next screen.
 
-            // TIMELINE (20 different sentences and primes in random order)
-            // Sentence, 5 sec 
-            // Prime, 250 ms
-            // State (4 button options) 
+            // Initialize jsPSych
+            var jsPsych = initJsPsych({});
+            // Generate User ID
+            var subject_id = Math.floor(Math.random()*100000);
+            // Initialize variables 
+            var sentence_duration = 1000; // ***CHANGE TO 5000
+            
+            // INSTRUCTIONS
+            var welcome_screen = {
+                type: jsPsychHtmlButtonResponse,
+                stimulus: "<p> Welcome to the experiment! </p> <br> <p>You will see a trivia question for 5 seconds, followed by a brief prime word. </p> <p> For each question, select whether you know the answer, don’t know the answer, have another word in mind, or if the answer is at the tip of your tongue. Then, type in your response to the trivia question. </p>",
+                choices: ['Start Practice Round'],
+                data: {
+                    typeoftrial: 'instruction',
+                    subject: subject_id
+                }
+            }
 
-            // Thank you message 
+            // SENTENCE
+            var sentence = {
+                type: jsPsychHtmlKeyboardResponse,
+                stimulus: "TEST SENTENCE.",
+                choices: "NO_KEYS", 
+                trial_duration: sentence_duration,
+                data: {
+                typeoftrial: 'sentence',
+                // list_number: jsPsych.timelineVariable('List'), 
+                // trialcondition: jsPsych.timelineVariable('condition'),
+                subject: subject_id
+                }
+            }
+            
+            // PRIME WORD
+            var prime = {
+                type: jsPsychHtmlKeyboardResponse,
+                //formatting stimulus font. Remember to close the entire thing in string quotes. The original '+'
+                //no longer needs string quotes around it.
+                stimulus: "TEST PRIME",
+                choices: "NO_KEYS",
+                trial_duration: 250,
+                data: {
+                typeoftrial: 'prime',
+                // list_number: jsPsych.timelineVariable('List'),
+                // trialcondition: jsPsych.timelineVariable('condition'),
+                subject: subject_id
+                }
+            }
 
+            // INPUT: STATE SELECT
+            var input_state = {
+                type: jsPsychHtmlButtonResponse,
+                stimulus: "Do you know the answer?",
+                choices: ["Know", "Don't know", "Other word in mind", "Tip of my tongue"], 
+                data: {
+                typeoftrial: 'state',
+                // list_number: jsPsych.timelineVariable('List'), 
+                // trialcondition: jsPsych.timelineVariable('condition'),
+                subject: subject_id
+                }
+            }
 
+            // INPUT: TYPED RESPONSE
+            var input_answer = {
+                type: jsPsychSurveyText,
+                questions: [{prompt: "Answer: ", required: true}],
+                data: {
+                typeoftrial: 'state',
+                // list_number: jsPsych.timelineVariable('List'), 
+                // trialcondition: jsPsych.timelineVariable('condition'),
+                subject: subject_id
+                }
+            }
+
+            // END SCREEN
+            var end_screen = {
+                type: jsPsychHtmlKeyboardResponse,
+                stimulus: "<p> Your responses have been recorded. </p> <p> Press any key to end the experiment. </p>",
+            }
+
+            // TEST CONSOLE PRINTS
+            // console.log("subject ID = ", subject_id) 
+
+            // RUN PLUGINS 
+            var practice_procedure = {
+                timeline: [sentence, prime, input_state, input_answer],
+                // timeline_variables: practicestimuli,
+                randomize_order: true
+            }
+            jsPsych.run([welcome_screen, practice_procedure, end_screen]);
         </script>
     </body>
 </html>
