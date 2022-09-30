@@ -2,13 +2,20 @@
 <html>
     <head>
         <title>Assignment 2</title>
-        <!--IMPORTS-->
+        <!--jsPsych Plugins-->
         <script src="https://unpkg.com/jspsych@7.3.0"></script>
         <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.1"></script>
         <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.1"></script>
         <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.1"></script>
+        <!--stimuli-->
+        <script src="practice.js"></script>
         <!--style sheet-->
         <link href="https://unpkg.com/jspsych@7.3.0/css/jspsych.css" rel="stylesheet" type="text/css" />
+        <!--Import lists-->
+        <script src="list1.js"></script>
+        <script src="list2.js"></script>
+        <script src="list3.js"></script>
+        <script src="list4.js"></script>
         
     </head>
     <body>
@@ -18,14 +25,15 @@
             var jsPsych = initJsPsych({});
             // Generate User ID
             var subject_id = Math.floor(Math.random()*100000);
-            // Initialize variables 
-            var sentence_duration = 1000; // ***CHANGE TO 5000
+            // Initialize constants
+            var sentence_duration = 1000; //***
+            var prime_duration = 250; 
             
             // INSTRUCTIONS
             var welcome_screen = {
                 type: jsPsychHtmlButtonResponse,
                 stimulus: "<p> Welcome to the experiment! </p> <br> <p>You will see a trivia question for 5 seconds, followed by a brief prime word. </p> <p> For each question, select whether you know the answer, don’t know the answer, have another word in mind, or if the answer is at the tip of your tongue. Then, type in your response to the trivia question. </p>",
-                choices: ['Start Practice Round'],
+                choices: ['Start Practice Rounds'],
                 data: {
                     typeoftrial: 'instruction',
                     subject: subject_id
@@ -35,7 +43,7 @@
             // SENTENCE
             var sentence = {
                 type: jsPsychHtmlKeyboardResponse,
-                stimulus: "TEST SENTENCE.",
+                stimulus: jsPsych.timelineVariable("prompt"),
                 choices: "NO_KEYS", 
                 trial_duration: sentence_duration,
                 data: {
@@ -49,11 +57,9 @@
             // PRIME WORD
             var prime = {
                 type: jsPsychHtmlKeyboardResponse,
-                //formatting stimulus font. Remember to close the entire thing in string quotes. The original '+'
-                //no longer needs string quotes around it.
-                stimulus: "TEST PRIME",
+                stimulus: jsPsych.timelineVariable("prime_given"),
                 choices: "NO_KEYS",
-                trial_duration: 250,
+                trial_duration: prime_duration,
                 data: {
                 typeoftrial: 'prime',
                 // list_number: jsPsych.timelineVariable('List'),
@@ -78,7 +84,7 @@
             // INPUT: TYPED RESPONSE
             var input_answer = {
                 type: jsPsychSurveyText,
-                questions: [{prompt: "Answer: ", required: true}],
+                questions: [{prompt: "Answer: ", name: "question", required: true}],
                 data: {
                 typeoftrial: 'state',
                 // list_number: jsPsych.timelineVariable('List'), 
@@ -90,19 +96,63 @@
             // END SCREEN
             var end_screen = {
                 type: jsPsychHtmlKeyboardResponse,
-                stimulus: "<p> Your responses have been recorded. </p> <p> Press any key to end the experiment. </p>",
+                stimulus: "<p> Thank you! Your responses have been recorded. </p> <p> Press any key to end the experiment. </p>",
             }
 
-            // TEST CONSOLE PRINTS
-            // console.log("subject ID = ", subject_id) 
+            // PRACTICE FEEDBACK
+            var practice_feedback = {
+                    type: jsPsychHtmlKeyboardResponse,
+                    stimulus: function () {
+                        // obtaining the value previously stored in data
+                        var last_response = jsPsych.data.get().readOnly().last(1).values()[0].response; 
+                        var answer = last_response.question.toUpperCase() 
 
-            // RUN PLUGINS 
+                        var target = jsPsych.timelineVariable("target").toUpperCase();
+
+                        if (answer == target) { return "Correct!" + "</p> <p> Press any key to continue </p>"; }
+                        else {
+                            return "Incorrect! <br> Answer: " + target + " <p> Press any key to continue </p>";
+                        }
+                    },
+                }
+
+            // PRACTICE END SCREEN
+            var practice_end_screen = {
+                type: jsPsychHtmlButtonResponse,
+                stimulus: "<p> Practice rounds complete. </p> <p> You are about to begin the actual experiment. </p>",
+                choices: ['Start Experiment'],
+                data: {
+                    typeoftrial: 'instruction',
+                    subject: subject_id
+                }
+            }
+
+            // PRACTICE PROCEDURE
             var practice_procedure = {
-                timeline: [sentence, prime, input_state, input_answer],
-                // timeline_variables: practicestimuli,
-                randomize_order: true
+                timeline: [sentence, prime, input_state, input_answer, practice_feedback],
+                timeline_variables: practice_stimuli,
+                // randomize_order: true
             }
-            jsPsych.run([welcome_screen, practice_procedure, end_screen]);
+
+            // RANDOMIZING STIMULI LISTS 
+            var exp_stimuli = [] 
+            var list = [1,2,3,4];
+            var CONDITION = list[Math.floor(Math.random() * list.length)]; // **Comment out when uploading to Cognition.io
+            if(CONDITION == 1){exp_stimuli = list1}
+            else if(CONDITION == 2){exp_stimuli = list2}
+            else if(CONDITION == 3){exp_stimuli = list3}
+            else{exp_stimuli = list4}
+
+            // EXPERIMENT PROCEDURE
+            var experiment_procedure = {
+                timeline: [sentence, prime, input_state, input_answer],
+                timeline_variables: exp_stimuli,
+                // randomize_order: true
+            }
+
+            // RUN EXPERIMENT 
+            jsPsych.run([welcome_screen, practice_procedure, practice_end_screen, experiment_procedure, end_screen]);
+
         </script>
     </body>
 </html>
