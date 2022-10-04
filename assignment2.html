@@ -84,7 +84,7 @@
             // INPUT: TYPED RESPONSE
             var input_answer = {
                 type: jsPsychSurveyText,
-                questions: [{prompt: "Answer: ", name: "question", required: true}],
+                questions: [{prompt: jsPsych.timelineVariable("prompt"), name: "question", required: true}],
                 data: {
                     subject_id: subject_id,
                     typeoftrial: 'response',
@@ -105,7 +105,7 @@
                     stimulus: function () {
                         // obtaining the value previously stored in data
                         var last_response = jsPsych.data.get().readOnly().last(1).values()[0].response; 
-                        var answer = last_response.question.toUpperCase() 
+                        var answer = last_response.question.toUpperCase() //last_response.[name param of response]
 
                         var target = jsPsych.timelineVariable("target").toUpperCase();
 
